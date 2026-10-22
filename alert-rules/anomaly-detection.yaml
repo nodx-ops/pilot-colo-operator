@@ -1,0 +1,143 @@
+# Anomaly Detection Alert Rules — NodX Colo Operator Pilot
+# Adaptive baselines (24 hourly) with z-score detection
+
+groups:
+  - name: anomaly-detection
+    interval: 60s
+    rules:
+      # Power anomaly (z-score > 3σ from hourly baseline)
+      - alert: DevicePowerAnomaly
+        expr: |
+          (
+            nodx_device_power_watts
+            -
+            nodx_device_power_watts_baseline_hourly
+          )
+          /
+          nodx_device_power_watts_baseline_stddev_hourly
+          > 3
+        for: 2m
+        labels:
+          severity: warning
+          category: anomaly
+          detection: zscore
+        annotations:
+          summary: "Power anomaly detected on {{ $labels.device }} in rack {{ $labels.rack }}"
+          description: |
+            Current power: {{ $value | printf "%.0f" }}W
+            Baseline (hour {{ $labels.hour }}): {{ $labels.baseline | printf "%.0f" }}W
+            Deviation: {{ $labels.deviation | printf "%.1f" }}σ
+            This exceeds the 3σ threshold for this hour of day.
+          runbook_url: "https://docs.nodx-ops.com/runbooks/power-anomaly"
+
+      - alert: RackPowerAnomaly
+        expr: |
+          (
+            nodx_rack_power_watts
+            -
+            nodx_rack_power_watts_baseline_hourly
+          )
+          /
+          nodx_rack_power_watts_baseline_stddev_hourly
+          > 3
+        for: 2m
+        labels:
+          severity: warning
+          category: anomaly
+          detection: zscore
+        annotations:
+          summary: "Rack {{ $labels.rack }} power anomaly detected"
+          description: |
+            Rack power deviates {{ $labels.deviation | printf "%.1f" }}σ from hour-{{ $labels.hour }} baseline.
+            Current: {{ $value | printf "%.0f" }}W, Expected: {{ $labels.baseline | printf "%.0f" }}W
+
+      # Temperature anomaly
+      - alert: DeviceTemperatureAnomaly
+        expr: |
+          (
+            nodx_device_temperature_celsius
+            -
+            nodx_device_temperature_celsius_baseline_hourly
+          )
+          /
+          nodx_device_temperature_celsius_baseline_stddev_hourly
+          > 3
+        for: 2m
+        labels:
+          severity: warning
+          category: anomaly
+          detection: zscore
+        annotations:
+          summary: "Temperature anomaly on {{ $labels.device }} in rack {{ $labels.rack }}"
+          description: |
+            Current temp: {{ $value | printf "%.1f" }}°C
+            Baseline (hour {{ $labels.hour }}): {{ $labels.baseline | printf "%.1f" }}°C
+            Deviation: {{ $labels.deviation | printf "%.1f" }}σ
+
+      # Thermal anomaly (rack-level)
+      - alert: RackThermalAnomaly
+        expr: |
+          (
+            nodx_rack_thermal_usage_percent
+            -
+            nodx_rack_thermal_usage_percent_baseline_hourly
+          )
+          /
+          nodx_rack_thermal_usage_percent_baseline_stddev_hourly
+          > 3
+        for: 2m
+        labels:
+          severity: warning
+          category: anomaly
+          detection: zscore
+        annotations:
+          summary: "Rack {{ $labels.rack }} thermal anomaly"
+          description: "Thermal usage deviates {{ $labels.deviation | printf "%.1f" }}σ from hourly baseline."
+
+      # Network traffic anomaly
+      - alert: DeviceNetworkAnomaly
+        expr: |
+          (
+            rate(nodx_device_network_bytes_total[5m])
+            -
+            nodx_device_network_bytes_baseline_hourly
+          )
+          /
+          nodx_device_network_bytes_baseline_stddev_hourly
+          > 3
+        for: 5m
+        labels:
+          severity: info
+          category: anomaly
+          detection: zscore
+        annotations:
+          summary: "Network traffic anomaly on {{ $labels.device }}"
+          description: "Traffic pattern deviates from hourly baseline. Possible data exfiltration or backup job."
+
+      # Composite anomaly (multiple metrics deviating)
+      - alert: RackMultiMetricAnomaly
+        expr: |
+          count by (rack) (
+            (nodx_rack_power_anomaly_score > 3)
+            or (nodx_rack_thermal_anomaly_score > 3)
+            or (nodx_rack_network_anomaly_score > 3)
+          ) >= 2
+        for: 5m
+        labels:
+          severity: warning
+          category: anomaly
+          detection: composite
+        annotations:
+          summary: "Multiple metric anomalies in rack {{ $labels.rack }}"
+          description: "Two or more metrics (power, thermal, network) simultaneously anomalous. Investigate root cause."
+
+      # Baseline health (detect missing/broken baselines)
+      - alert: BaselineMissing
+        expr: nodx_baseline_missing_total > 0
+        for: 1h
+        labels:
+          severity: info
+          category: operational
+        annotations:
+          summary: "{{ $value }} devices missing hourly baselines"
+          description: "Some devices have insufficient data for anomaly detection. Allow 24h for baseline establishment."

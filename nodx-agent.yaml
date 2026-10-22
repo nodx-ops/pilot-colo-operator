@@ -1,0 +1,123 @@
+# NodX Agent Configuration — Colo Operator Pilot
+# Pre-tuned for Dell/HPE/Supermicro (Redfish) + APC/Vertiv (SNMP) + MQTT sensors
+
+agent:
+  id: ""                    # Auto-generated on first registration
+  org_id: ""                # Filled by API on registration
+  api_url: "http://api:3000"
+  secret: "${NODX_AGENT_SECRET}"
+  interval_seconds: 30      # Metric collection interval
+  inventory_interval_seconds: 60
+  timeout_seconds: 10
+  retry_attempts: 3
+  retry_backoff_seconds: 5
+
+redfish:
+  enabled: true
+  targets:
+    # Example targets — replace with your BMCs
+    - host: "bmc-rack-01"
+      username: "root"
+      password: "${REDFISH_PASSWORD}"
+      port: 443
+      verify_ssl: false
+    - host: "bmc-rack-02"
+      username: "root"
+      password: "${REDFISH_PASSWORD}"
+      port: 443
+      verify_ssl: false
+  metrics:
+    - Power
+    - Thermal
+    - Processor
+    - Memory
+    - Storage
+    - NetworkAdapter
+    - Chassis
+    - ComputerSystem
+  collection:
+    include_odata: true
+    max_depth: 2
+
+snmp:
+  enabled: true
+  targets:
+    # Example PDU/UPS targets — replace with your gear
+    - host: "pdu-rack-01"
+      community: "public"
+      version: "2c"
+      port: 161
+      timeout: 5
+      retries: 2
+    - host: "ups-rack-01"
+      community: "public"
+      version: "2c"
+      port: 161
+      timeout: 5
+      retries: 2
+  mibs:
+    - RFC1213-MIB
+    - IF-MIB
+    - IP-MIB
+    - SNMPv2-MIB
+    - POWERNET-MIB          # APC
+    - VERTIV-MIB            # Vertiv Liebert
+    - EATON-MIB             # Eaton
+  metrics:
+    - sysDescr
+    - sysObjectID
+    - sysUpTime
+    - sysName
+    - sysLocation
+    - ifDescr
+    - ifOperStatus
+    - ifInOctets
+    - ifOutOctets
+    - ifInErrors
+    - ifOutErrors
+    # Power-specific
+    - upsBasicOutputStatus
+    - upsBasicOutputVoltage
+    - upsBasicOutputCurrent
+    - upsBasicOutputPower
+    - upsBasicBatteryStatus
+    - upsBasicBatteryChargeRemaining
+    - upsBasicBatteryRunTimeRemaining
+
+mqtt:
+  enabled: true
+  broker: "mqtt://sensor-gateway:1883"
+  client_id: "nodx-agent-${HOSTNAME}"
+  username: "${MQTT_USERNAME}"
+  password: "${MQTT_PASSWORD}"
+  topics:
+    - "sensors/+/temperature"
+    - "sensors/+/humidity"
+    - "sensors/+/pressure"
+    - "power/+/voltage"
+    - "power/+/current"
+    - "power/+/power"
+  qos: 1
+  keepalive: 60
+  reconnect_interval: 10
+
+# Custom metric mappings (topic → metric name)
+metric_mappings:
+  "sensors/+/temperature": "temperature_celsius"
+  "sensors/+/humidity": "humidity_percent"
+  "sensors/+/pressure": "pressure_hpa"
+  "power/+/voltage": "voltage_volts"
+  "power/+/current": "current_amps"
+  "power/+/power": "power_watts"
+
+# Buffer for offline resilience
+buffer:
+  max_size: 10000
+  flush_interval_seconds: 30
+  persist_path: "/var/lib/nodx-agent/buffer"
+
+# Logging
+logging:
+  level: "info"
+  format: "json"
+  output: "stdout"

@@ -1,0 +1,126 @@
+# Critical Threshold Alert Rules — NodX Colo Operator Pilot
+# Static thresholds for immediate hardware/environmental issues
+
+groups:
+  - name: threshold-critical
+    interval: 30s
+    rules:
+      # Temperature critical
+      - alert: RackTemperatureCritical
+        expr: nodx_device_temperature_celsius > 35
+        for: 2m
+        labels:
+          severity: critical
+          category: thermal
+        annotations:
+          summary: "Device {{ $labels.device }} in rack {{ $labels.rack }} temperature critical: {{ $value }}°C"
+          description: "Temperature exceeded 35°C threshold. Check cooling, airflow, and HVAC."
+          runbook_url: "https://docs.nodx-ops.com/runbooks/thermal-critical"
+
+      - alert: RackTemperatureWarning
+        expr: nodx_device_temperature_celsius > 30
+        for: 5m
+        labels:
+          severity: warning
+          category: thermal
+        annotations:
+          summary: "Device {{ $labels.device }} in rack {{ $labels.rack }} temperature elevated: {{ $value }}°C"
+          description: "Temperature above 30°C. Monitor for cooling degradation."
+
+      # Power critical
+      - alert: RackPowerCritical
+        expr: nodx_rack_power_usage_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+          category: power
+        annotations:
+          summary: "Rack {{ $labels.rack }} power usage critical: {{ $value }}%"
+          description: "Rack power draw exceeds 90% of capacity. Risk of PDU trip."
+          runbook_url: "https://docs.nodx-ops.com/runbooks/power-critical"
+
+      - alert: RackPowerWarning
+        expr: nodx_rack_power_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: power
+        annotations:
+          summary: "Rack {{ $labels.rack }} power usage elevated: {{ $value }}%"
+          description: "Rack power draw above 80%. Plan capacity or redistribute load."
+
+      - alert: PDUPhaseImbalance
+        expr: |
+          (
+            max by (rack, phase) (nodx_pdu_phase_power_watts)
+            /
+            min by (rack, phase) (nodx_pdu_phase_power_watts)
+          ) > 1.2
+        for: 5m
+        labels:
+          severity: warning
+          category: power
+        annotations:
+          summary: "PDU phase imbalance in rack {{ $labels.rack }}"
+          description: "Phase imbalance exceeds 20%. Redistribute loads across phases."
+
+      # Disk/Storage critical
+      - alert: DeviceDiskCritical
+        expr: nodx_device_disk_usage_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+          category: storage
+        annotations:
+          summary: "Device {{ $labels.device }} disk usage critical: {{ $value }}%"
+          description: "Disk usage exceeds 90%. Risk of data loss or service interruption."
+
+      - alert: DeviceDiskWarning
+        expr: nodx_device_disk_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: storage
+        annotations:
+          summary: "Device {{ $labels.device }} disk usage elevated: {{ $value }}%"
+
+      # Network critical
+      - alert: DeviceNetworkErrorsHigh
+        expr: rate(nodx_device_network_errors_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: "Device {{ $labels.device }} network error rate high"
+          description: "Network interface experiencing >100 errors/sec. Check cabling and switch port."
+
+      # UPS critical
+      - alert: UPSBatteryCritical
+        expr: nodx_ups_battery_charge_percent < 20
+        for: 1m
+        labels:
+          severity: critical
+          category: power
+        annotations:
+          summary: "UPS {{ $labels.ups }} battery critical: {{ $value }}%"
+          description: "UPS battery below 20%. Immediate attention required."
+
+      - alert: UPSBatteryWarning
+        expr: nodx_ups_battery_charge_percent < 50
+        for: 5m
+        labels:
+          severity: warning
+          category: power
+        annotations:
+          summary: "UPS {{ $labels.ups }} battery low: {{ $value }}%"
+
+      - alert: UPSOnBattery
+        expr: nodx_ups_on_battery == 1
+        for: 30s
+        labels:
+          severity: critical
+          category: power
+        annotations:
+          summary: "UPS {{ $labels.ups }} running on battery"
+          description: "UPS has switched to battery power. Mains power may be lost."

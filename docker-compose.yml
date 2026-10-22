@@ -1,0 +1,109 @@
+# NodX Pilot Stack — Local Development
+# Runs: Postgres, Redis, API, Ingestion, UI, Agent
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: nodx
+      POSTGRES_USER: nodx
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nodxpilot}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nodx -d nodx"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - nodx
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - nodx
+
+  api:
+    image: nodx-ops/core-api:latest
+    environment:
+      DATABASE_URL: postgres://nodx:${POSTGRES_PASSWORD:-nodxpilot}@postgres:5432/nodx
+      REDIS_ADDR: redis:6379
+      REDIS_QUEUE_NAME: nodx:queue
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-pilot-secret-change-me}
+      AUTH_ADMIN_EMAIL: admin@nodx-ops.com
+      AUTH_ADMIN_PASSWORD: ${ADMIN_PASSWORD:-nodxpilot}
+      CORS_ORIGIN: http://localhost:3000
+      INGESTION_PORT: 8080
+      NODX_AGENT_SECRET: ${AGENT_SECRET:-pilot-agent-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3001:3000"
+      - "8080:8080"
+    networks:
+      - nodx
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ingestion:
+    image: nodx-ops/ingestion:latest
+    environment:
+      REDIS_ADDR: redis:6379
+      REDIS_QUEUE_NAME: nodx:queue
+      DATABASE_URL: postgres://nodx:${POSTGRES_PASSWORD:-nodxpilot}@postgres:5432/nodx
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nodx
+
+  ui:
+    image: nodx-ops/ui:latest
+    environment:
+      API_BASE_URL: http://localhost:3001
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - nodx
+
+  agent:
+    image: nodx-ops/agent:latest
+    environment:
+      NODX_API_URL: http://api:3000
+      NODX_AGENT_SECRET: ${AGENT_SECRET:-pilot-agent-secret}
+      NODX_CONFIG_PATH: /config/nodx-agent.yaml
+    volumes:
+      - ./nodx-agent.yaml:/config/nodx-agent.yaml:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - nodx
+    # Run once for registration, then daemon
+    command: ["--register", "--daemon"]
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  nodx:
+    driver: bridge
