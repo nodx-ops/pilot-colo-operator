@@ -1,0 +1,153 @@
+{
+  "version": "3.7",
+  "exported_at": "2025-01-15T10:30:00Z",
+  "sites": [
+    {
+      "name": "SITE-A",
+      "slug": "site-a",
+      "status": "active",
+      "region": "us-east",
+      "description": "Primary colocation facility - Ashburn, VA"
+    },
+    {
+      "name": "SITE-B",
+      "slug": "site-b",
+      "status": "active",
+      "region": "us-west",
+      "description": "Secondary colocation facility - San Jose, CA"
+    },
+    {
+      "name": "SITE-C",
+      "slug": "site-c",
+      "status": "active",
+      "region": "eu-central",
+      "description": "European colocation facility - Frankfurt, DE"
+    }
+  ],
+  "racks": [
+    {
+      "name": "Rack-01",
+      "site": "site-a",
+      "u_height": 42,
+      "desc_units": false,
+      "outer_width": 600,
+      "outer_depth": 1200,
+      "outer_unit": "mm",
+      "status": "active",
+      "role": "compute",
+      "power_capacity": 20000,
+      "custom_fields": {
+        "location_row": "A",
+        "location_rack": "01"
+      }
+    },
+    {
+      "name": "Rack-02",
+      "site": "site-a",
+      "u_height": 42,
+      "desc_units": false,
+      "outer_width": 600,
+      "outer_depth": 1200,
+      "outer_unit": "mm",
+      "status": "active",
+      "role": "compute",
+      "power_capacity": 20000,
+      "custom_fields": {
+        "location_row": "A",
+        "location_rack": "02"
+      }
+    },
+    {
+      "name": "Rack-03",
+      "site": "site-a",
+      "u_height": 42,
+      "desc_units": false,
+      "outer_width": 600,
+      "outer_depth": 1200,
+      "outer_unit": "mm",
+      "status": "active",
+      "role": "storage",
+      "power_capacity": 20000,
+      "custom_fields": {
+        "location_row": "A",
+        "location_rack": "03"
+      }
+    }
+  ],
+  "devices": [
+    {
+      "name": "bmc-rack-01",
+      "site": "site-a",
+      "rack": "Rack-01",
+      "face": "front",
+      "position": 1,
+      "device_type": "dell-r750-bmc",
+      "device_role": "bmc",
+      "status": "active",
+      "primary_ip4": "10.0.1.1/24",
+      "tags": ["redfish", "dell"]
+    },
+    {
+      "name": "pdu-rack-01-a",
+      "site": "site-a",
+      "rack": "Rack-01",
+      "face": "rear",
+      "position": 40,
+      "device_type": "apc-ap8959",
+      "device_role": "pdu",
+      "status": "active",
+      "primary_ip4": "10.0.1.10/24",
+      "tags": ["snmp", "apc"]
+    },
+    {
+      "name": "pdu-rack-01-b",
+      "site": "site-a",
+      "rack": "Rack-01",
+      "face": "rear",
+      "position": 42,
+      "device_type": "apc-ap8959",
+      "device_role": "pdu",
+      "status": "active",
+      "primary_ip4": "10.0.1.11/24",
+      "tags": ["snmp", "apc"]
+    }
+  ],
+  "device_types": [
+    {
+      "model": "dell-r750-bmc",
+      "manufacturer": "Dell",
+      "slug": "dell-r750-bmc",
+      "u_height": 0,
+      "is_full_depth": false,
+      "subdevice_role": "child"
+    },
+    {
+      "model": "apc-ap8959",
+      "manufacturer": "APC",
+      "slug": "apc-ap8959",
+      "u_height": 0,
+      "is_full_depth": false,
+      "subdevice_role": "child"
+    }
+  ],
+  "manufacturers": [
+    {"name": "Dell", "slug": "dell"},
+    {"name": "APC", "slug": "apc"},
+    {"name": "HPE", "slug": "hpe"},
+    {"name": "Supermicro", "slug": "supermicro"}
+  ],
+  "device_roles": [
+    {"name": "BMC", "slug": "bmc", "color": "3498db"},
+    {"name": "PDU", "slug": "pdu", "color": "e74c3c"},
+    {"name": "Server", "slug": "server", "color": "2ecc71"},
+    {"name": "Network", "slug": "network", "color": "9b59b6"},
+    {"name": "Storage", "slug": "storage", "color": "f39c12"}
+  ],
+  "tags": [
+    {"name": "redfish", "slug": "redfish", "color": "3498db"},
+    {"name": "snmp", "slug": "snmp", "color": "e74c3c"},
+    {"name": "mqtt", "slug": "mqtt", "color": "2ecc71"},
+    {"name": "dell", "slug": "dell", "color": "3498db"},
+    {"name": "apc", "slug": "apc", "color": "e74c3c"}
+  ]
+}

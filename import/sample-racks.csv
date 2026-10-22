@@ -1,0 +1,51 @@
+rack_id,site_id,name,u_height,power_capacity_watts,location_row,location_rack,notes
+R01,SITE-A,Rack-01,42,20000,A,01,Primary compute rack
+R02,SITE-A,Rack-02,42,20000,A,02,Primary compute rack
+R03,SITE-A,Rack-03,42,20000,A,03,Storage rack
+R04,SITE-A,Rack-04,42,20000,A,04,Network rack
+R05,SITE-A,Rack-05,42,20000,A,05,GPU rack
+R06,SITE-A,Rack-06,42,20000,B,01,Primary compute rack
+R07,SITE-A,Rack-07,42,20000,B,02,Primary compute rack
+R08,SITE-A,Rack-08,42,20000,B,03,Storage rack
+R09,SITE-A,Rack-09,42,20000,B,04,Network rack
+R10,SITE-A,Rack-10,42,20000,B,05,GPU rack
+R11,SITE-A,Rack-11,42,20000,C,01,Primary compute rack
+R12,SITE-A,Rack-12,42,20000,C,02,Primary compute rack
+R13,SITE-A,Rack-13,42,20000,C,03,Storage rack
+R14,SITE-A,Rack-14,42,20000,C,04,Network rack
+R15,SITE-A,Rack-15,42,20000,C,05,GPU rack
+R16,SITE-B,Rack-01,42,20000,A,01,Primary compute rack
+R17,SITE-B,Rack-02,42,20000,A,02,Primary compute rack
+R18,SITE-B,Rack-03,42,20000,A,03,Storage rack
+R19,SITE-B,Rack-04,42,20000,A,04,Network rack
+R20,SITE-B,Rack-05,42,20000,A,05,GPU rack
+R21,SITE-B,Rack-06,42,20000,B,01,Primary compute rack
+R22,SITE-B,Rack-07,42,20000,B,02,Primary compute rack
+R23,SITE-B,Rack-08,42,20000,B,03,Storage rack
+R24,SITE-B,Rack-09,42,20000,B,04,Network rack
+R25,SITE-B,Rack-10,42,20000,B,05,GPU rack
+R26,SITE-B,Rack-11,42,20000,C,01,Primary compute rack
+R27,SITE-B,Rack-12,42,20000,C,02,Primary compute rack
+R28,SITE-B,Rack-13,42,20000,C,03,Storage rack
+R29,SITE-B,Rack-14,42,20000,C,04,Network rack
+R30,SITE-B,Rack-15,42,20000,C,05,GPU rack
+R31,SITE-C,Rack-01,42,20000,A,01,Primary compute rack
+R32,SITE-C,Rack-02,42,20000,A,02,Primary compute rack
+R33,SITE-C,Rack-03,42,20000,A,03,Storage rack
+R34,SITE-C,Rack-04,42,20000,A,04,Network rack
+R35,SITE-C,Rack-05,42,20000,A,05,GPU rack
+R36,SITE-C,Rack-06,42,20000,B,01,Primary compute rack
+R37,SITE-C,Rack-07,42,20000,B,02,Primary compute rack
+R38,SITE-C,Rack-08,42,20000,B,03,Storage rack
+R39,SITE-C,Rack-09,42,20000,B,04,Network rack
+R40,SITE-C,Rack-10,42,20000,B,05,GPU rack
+R41,SITE-C,Rack-11,42,20000,C,01,Primary compute rack
+R42,SITE-C,Rack-12,42,20000,C,02,Primary compute rack
+R43,SITE-C,Rack-13,42,20000,C,03,Storage rack
+R44,SITE-C,Rack-14,42,20000,C,04,Network rack
+R45,SITE-C,Rack-15,42,20000,C,05,GPU rack
+R46,SITE-C,Rack-16,42,20000,D,01,Primary compute rack
+R47,SITE-C,Rack-17,42,20000,D,02,Primary compute rack
+R48,SITE-C,Rack-18,42,20000,D,03,Storage rack
+R49,SITE-C,Rack-19,42,20000,D,04,Network rack
+R50,SITE-C,Rack-20,42,20000,D,05,GPU rack
