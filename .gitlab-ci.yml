@@ -1,0 +1,26 @@
+# pilot-colo-operator pipeline — GitLab CI for the colo monitoring pilot.
+# Validate-only: no deploy. Gates docker compose and YAML config.
+# Follows the nodx-group CI conventions (validate stage, nodx-group-runner tag).
+stages: [validate]
+
+default:
+  tags:
+    - nodx-group-runner
+
+compose-validate:
+  stage: validate
+  image: docker:24
+  services:
+    - docker:24-dind
+  script:
+    - docker compose config --quiet
+
+yaml-lint:
+  stage: validate
+  image: python:3.11-alpine
+  before_script:
+    - pip install --no-cache-dir yamllint
+  script:
+    - yamllint nodx-agent.yaml
+    - yamllint alert-rules/
+    - yamllint dashboards/
