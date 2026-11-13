@@ -1,0 +1,3 @@
+
+# Prevent local tool configurations from being tracked
+.pi/
